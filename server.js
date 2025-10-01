@@ -153,6 +153,33 @@ app.get('/empleados/edad', async (req, res) => {
 });
 
 
+//Numeor de empleados por contrato
+app.get('/contratos/tipo', async (req, res) => {
+  try {
+    const result = await Contratos.aggregate([
+      {
+        $group: {
+          _id: "$TipoContrato",
+          total_empleados: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          tipoContrato: "$_id",
+          total_empleados: 1
+        }
+      }
+    ]);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
+
 // Puerto
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log('Servidor corriendo en puerto ${PORT}'));
