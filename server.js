@@ -106,6 +106,53 @@ app.get('/empleados/departamento', async (req, res) => {
 });
 
 
+
+///contar empleados por rangos de edad
+app.get('/empleados/edad', async (req, res) => {
+  try {
+    const currentYear = new Date().getFullYear();
+    const pivot = currentYear % 100;
+
+    const pipeline = [
+      { $addFields: { yearTwoDigits: { $toInt: { $substr: ["$numero_cedula", 8, 2] } } } },
+      { 
+        $addFields: { 
+          birthYear: {
+            $cond: [
+              { $gt: ["$yearTwoDigits", pivot] },
+              { $add: [1900, "$yearTwoDigits"] },
+              { $add: [2000, "$yearTwoDigits"] }
+            ]
+          }
+        } 
+      },
+      { $addFields: { edad: { $subtract: [currentYear, "$birthYear"] } } },
+      { $addFields: { decadeStart: { $multiply: [ { $floor: { $divide: ["$edad", 10] } }, 10 ] } } },
+      { $group: { _id: "$decadeStart", total: { $sum: 1 } } },
+      { $sort: { _id: 1 } },
+      { 
+        $project: { 
+          _id: 0,
+          rango: { 
+            $concat: [
+              { $toString: "$_id" },
+              "-",
+              { $toString: { $add: ["$_id", 9] } }
+            ]
+          },
+          total: 1
+        }
+      }
+    ];
+
+    const result = await Empleados.aggregate(pipeline);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 // Puerto
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log('Servidor corriendo en puerto ${PORT}'));
