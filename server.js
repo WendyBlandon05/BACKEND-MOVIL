@@ -177,8 +177,20 @@ app.get('/contratos/tipo', async (req, res) => {
   }
 });
 
+//PANTALLA "PERMISOS"
+//permiso mas popular
 
-
+app.get('/permisos/popular', async (req, res) => {
+  try {
+    const result = await Empleados.aggregate([
+      { $unwind: "$detallepermisos" },
+      { $group: { _id: "$detallepermisos.descripcion", total: { $sum: 1 } } },
+      { $sort: { total: -1 } },
+      { $limit: 1 }
+    ]);
+    res.json(result[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
 
 // Puerto
 const PORT = process.env.PORT || 5000;
