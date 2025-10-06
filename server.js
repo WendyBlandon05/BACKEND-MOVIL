@@ -328,6 +328,31 @@ app.get('/permisos/poryear', async (req, res) => {
   }
 });
 
+// Género con más permisos
+app.get('/permisos/genero-popular', async (req, res) => {
+  try {
+    const result = await Empleados.aggregate([
+      { $unwind: "$detallepermisos" },
+      {
+        $group: {
+          _id: "$sexo",
+          total: { $sum: 1 }
+        }
+      },
+      { $sort: { total: -1 } },
+      { $limit: 1 }
+    ]);
+
+    const data = result.length > 0
+      ? { genero: result[0]._id, total_permisos: result[0].total }
+      : { genero: null, total_permisos: 0 };
+
+    res.json(data);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // Puerto
 const PORT = process.env.PORT || 5000;
