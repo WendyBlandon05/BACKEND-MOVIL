@@ -296,6 +296,39 @@ app.get('/permisos/promedio', async (req, res) => {
 });
 
 
+// Permisos agrupados por años como histo
+app.get('/permisos/poryear', async (req, res) => {
+  try {
+    const result = await Empleados.aggregate([
+      { $unwind: "$detallepermisos" },
+      {
+        $project: {
+          year: { $year: "$detallepermisos.fechainicio" }
+        }
+      },
+      {
+        $group: {
+          _id: "$year",
+          total: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: -1 } }
+    ]);
+
+    // Formatear salida
+    const data = result.map(r => ({
+      anio: r._id,
+      total_permisos: r.total
+    }));
+
+    res.json(data);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 // Puerto
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log('Servidor corriendo en puerto ${PORT}'));
