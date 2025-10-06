@@ -262,6 +262,39 @@ app.get('/permisos/mes', async (req, res) => {
   }
 });
 
+// Promedio de días por permiso (entero)
+app.get('/permisos/promedio', async (req, res) => {
+  try {
+    const result = await Empleados.aggregate([
+      { $unwind: "$detallepermisos" },
+      {
+        $project: {
+          dias: {
+            $divide: [
+              { $subtract: ["$detallepermisos.fechafin", "$detallepermisos.fechainicio"] },
+              1000 * 60 * 60 * 24 // convertir milisegundos a días
+            ]
+          }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          promedioDias: { $avg: "$dias" }
+        }
+      }
+    ]);
+
+    // Redondear el promedio (entero)
+    const promedio = result.length > 0 ? Math.round(result[0].promedioDias) : 0;
+
+    res.json({ promedio_dias: promedio });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // Puerto
 const PORT = process.env.PORT || 5000;
