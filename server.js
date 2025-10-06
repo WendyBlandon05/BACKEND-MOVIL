@@ -192,6 +192,44 @@ app.get('/permisos/popular', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+
+//Dias perdidos por los permisos
+app.get('/permisos/diasperdidos', async (req, res) => {
+  try {
+    const result = await Empleados.aggregate([
+      { $unwind: "$detallepermisos" },
+      {
+        $project: {
+          dias: {
+            $divide: [
+              { $subtract: ["$detallepermisos.fechafin", "$detallepermisos.fechainicio"] },
+              1000 * 60 * 60 * 24 // milisegundos a días
+            ]
+          }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalDias: { $sum: "$dias" }
+        }
+      }
+    ]);
+
+    // Si hay resultado, redondeamos el total de días
+    const total = result.length > 0 ? Math.round(result[0].totalDias) : 0;
+    res.json({ dias_perdidos: total });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+//permisos por el mes actual
+
+
+
 // Puerto
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log('Servidor corriendo en puerto ${PORT}'));
