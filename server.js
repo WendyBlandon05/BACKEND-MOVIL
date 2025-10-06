@@ -329,7 +329,7 @@ app.get('/permisos/poryear', async (req, res) => {
 });
 
 // Género con más permisos
-app.get('/permisos/genero-popular', async (req, res) => {
+app.get('/permisos/genero', async (req, res) => {
   try {
     const result = await Empleados.aggregate([
       { $unwind: "$detallepermisos" },
@@ -353,6 +353,9 @@ app.get('/permisos/genero-popular', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+//
+
 
 // Puerto
 const PORT = process.env.PORT || 5000;
