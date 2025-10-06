@@ -503,6 +503,17 @@ app.get('/contratos/por-genero', async (req, res) => {
 });
 
 
+///listar los tipos de contratos que existen 
+
+// Listar tipos de contrato distintos
+app.get('/contratos/tipos', async (req, res) => {
+  try {
+    const tipos = await Contratos.distinct("TipoContrato");
+    res.json({ tipos_contrato: tipos });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // Puerto
 const PORT = process.env.PORT || 5000;
