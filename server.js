@@ -228,6 +228,39 @@ app.get('/permisos/diasperdidos', async (req, res) => {
 
 //permisos por el mes actual
 
+// Permisos del mes actual (devuelve 0 si no hay)
+app.get('/permisos/mes', async (req, res) => {
+  try {
+    const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    const finMes = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1);
+
+    const result = await Empleados.aggregate([
+      { $unwind: "$detallepermisos" },
+      {
+        $match: {
+          "detallepermisos.fechainicio": { $gte: inicioMes, $lt: finMes }
+        }
+      },
+      { $count: "totalPermisosMes" },
+      {
+        $unionWith: {
+          coll: "Empleados",
+          pipeline: [
+            { $limit: 1 },
+            { $project: { totalPermisosMes: { $literal: 0 } } }
+          ]
+        }
+      },
+      { $limit: 1 }
+    ]);
+
+    const total = result.length > 0 ? result[0].totalPermisosMes : 0;
+    res.json({ permisos_mes_actual: total });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 
 // Puerto
