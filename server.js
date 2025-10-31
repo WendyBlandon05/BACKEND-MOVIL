@@ -13,9 +13,14 @@ app.use(cors());
 app.use(express.json());
 
 // Conectar a Atlas con monguse y la variable en el .env
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB Atlas conectado'))
+//mongoose.connect(process.env.MONGO_URI)
+   // .then(() => console.log('CosmosDB conectado'))
+   // .catch(err => console.error('Error conectando a MongoDB:', err));
+
+mongoose.connect(process.env.MONGO_URI, { dbName: "ADMINISTRACION_RH" })
+    .then(() => console.log('CosmosDB conectado a la base ADMINISTRACION_RH'))
     .catch(err => console.error('Error conectando a MongoDB:', err));
+
 
 
 const AnyCollection = mongoose.model('AnyCollection', new mongoose.Schema({}, { strict: false }), 'Cargos');
@@ -518,3 +523,4 @@ app.get('/contratos/tipos', async (req, res) => {
 // Puerto
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log('Servidor corriendo en puerto ${PORT}'));
+
