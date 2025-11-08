@@ -520,6 +520,32 @@ app.get('/contratos/tipos', async (req, res) => {
   }
 });
 
+
+//LISTAR NOMINAS
+app.get('/nomina/historial', async (req, res) => {
+    try {
+        const result = await mongoose.connection.collection('Nomina')
+            .find({ is_active: true })
+            .sort({ fecha_pago: -1 })
+            .toArray();
+
+        const nominas = result.map(nomina => ({
+            mes_pagado: nomina.mes_pagado,
+            fecha_pago: nomina.fecha_pago,
+            total: nomina.salario_bruto,
+            deducciones: nomina.total_deducciones
+        }));
+
+        res.json(nominas);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+
 // Puerto
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log('Servidor corriendo en puerto ${PORT}'));
