@@ -29,6 +29,8 @@ const Empleados = mongoose.model('Empleados', new mongoose.Schema({}, { strict: 
 const Contratos = mongoose.model('Contratos', new mongoose.Schema({}, { strict: false }), 'Contratos');
 const Departamentos = mongoose.model('Departamentos', new mongoose.Schema({}, { strict: false }), 'Departamentos');
 const Cargos = mongoose.model('Cargos', new mongoose.Schema({}, { strict: false }), 'Cargos');
+const Jornadas = mongoose.model('Jornadas', new mongoose.Schema({}, { strict: false }), 'Jornadas');
+
 
 
 // Endpoint GE
@@ -547,6 +549,18 @@ app.get('/cargos/total', async (req, res) => {
     const total = await Cargos.countDocuments();
 
     res.json({ total_cargos: total });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Total de jornadas
+app.get('/jornadas/total', async (req, res) => {
+  try {
+    const total = await Jornadas.countDocuments();
+
+    res.json({ total_jornadas: total });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
