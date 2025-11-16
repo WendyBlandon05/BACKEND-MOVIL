@@ -28,6 +28,7 @@ const AnyCollection = mongoose.model('AnyCollection', new mongoose.Schema({}, { 
 const Empleados = mongoose.model('Empleados', new mongoose.Schema({}, { strict: false }), 'Empleados');
 const Contratos = mongoose.model('Contratos', new mongoose.Schema({}, { strict: false }), 'Contratos');
 const Departamentos = mongoose.model('Departamentos', new mongoose.Schema({}, { strict: false }), 'Departamentos');
+const Cargos = mongoose.model('Cargos', new mongoose.Schema({}, { strict: false }), 'Cargos');
 
 
 // Endpoint GE
@@ -538,6 +539,18 @@ app.get('/nomina/historial', async (req, res) => {
         console.error(err);
         res.status(500).json({ error: err.message });
     }
+});
+
+// Total de cargos
+app.get('/cargos/total', async (req, res) => {
+  try {
+    const total = await Cargos.countDocuments();
+
+    res.json({ total_cargos: total });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 
