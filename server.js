@@ -567,6 +567,20 @@ app.get('/jornadas/total', async (req, res) => {
   }
 });
 
+// Total de departamentos
+
+app.get('/deptos/total', async (req, res) => {
+  try {
+    const total = await Departamentos.countDocuments();
+
+    res.json({ total_departamentos: total });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 
 
 // Puerto
