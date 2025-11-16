@@ -421,28 +421,13 @@ app.get('/contratos/tipo-popular', async (req, res) => {
   }
 });
 
-//contratos vigentes
-app.get('/contratos/vigente', async (req, res) => {
+
+// Contratos vigentes
+app.get('/contratos/vigentes', async (req, res) => {
   try {
-    const ahora = new Date();
-
-    const inicioDiaUTC = new Date(Date.UTC(
-      ahora.getUTCFullYear(),
-      ahora.getUTCMonth(),
-      ahora.getUTCDate(),
-      0, 0, 0
-    ));
-
-    const finDiaUTC = new Date(Date.UTC(
-      ahora.getUTCFullYear(),
-      ahora.getUTCMonth(),
-      ahora.getUTCDate(),
-      23, 59, 59
-    ));
-
     const total = await Contratos.countDocuments({
-      FechaInicio: { $lte: finDiaUTC },
-      FechaFin: { $gte: inicioDiaUTC }
+      FechaInicio: { $lte: new Date() },
+      FechaFin: { $gte: new Date() }
     });
 
     res.json({ contratos_vigentes: total });
