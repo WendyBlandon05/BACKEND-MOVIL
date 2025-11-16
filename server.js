@@ -236,8 +236,11 @@ app.get('/permisos/diasperdidos', async (req, res) => {
 // Permisos del mes actual (devuelve 0 si no hay)
 app.get('/permisos/mes', async (req, res) => {
   try {
-    const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-    const finMes = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1);
+    const año = new Date().getFullYear();
+    const mes = new Date().getMonth();
+
+    const inicioMes = new Date(año, mes, 1);
+    const finMes = new Date(año, mes + 1, 1);
 
     const result = await Empleados.aggregate([
       { $unwind: "$detallepermisos" },
@@ -246,26 +249,19 @@ app.get('/permisos/mes', async (req, res) => {
           "detallepermisos.fechainicio": { $gte: inicioMes, $lt: finMes }
         }
       },
-      { $count: "totalPermisosMes" },
-      {
-        $unionWith: {
-          coll: "Empleados",
-          pipeline: [
-            { $limit: 1 },
-            { $project: { totalPermisosMes: { $literal: 0 } } }
-          ]
-        }
-      },
-      { $limit: 1 }
+      { $count: "totalPermisosMes" }
     ]);
 
+    
     const total = result.length > 0 ? result[0].totalPermisosMes : 0;
+
     res.json({ permisos_mes_actual: total });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // Promedio de días por permiso (entero)
 app.get('/permisos/promedio', async (req, res) => {
